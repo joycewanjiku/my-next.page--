@@ -1,200 +1,237 @@
-"use client";
-import Link from "next/link";
-import Image from "next/image";
+'use client'
 import React, { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-
-const SignUp = () => {
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [passwordsMatch, setPasswordsMatch] = useState(true);
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import useCreateUsers from "../hooks/usePostUsers";
+import Link from "next/link";
+import router from 'next/router';
+interface FormData {
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone_number: string;
+  location: string;
+  password: string;
+  confirmPassword: string;
+}
+const SignupPage = () => {
+  const { handleRegister, user, error } = useCreateUsers();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    username: "",
+    email: "",
+    first_name: "",
+    last_name: "",
+    phone_number: "",
+    location: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [passwordMatchError, setPasswordMatchError] = useState(false);
+const errorMessages = Object.values(error);
+const errorMessage = errorMessages.join(" ");
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+    if (name === "confirmPassword") {
+      if (formData.password !== value) {
+        setPasswordMatchError(true);
+      } else {
+        setPasswordMatchError(false);
+      }
+    }
+  };
   const togglePasswordVisibility = (field: string) => {
     if (field === "password") {
-      setPasswordVisible(!passwordVisible);
-    } else if (field === "confirmPassword") {
-      setConfirmPasswordVisible(!confirmPasswordVisible);
+      setShowPassworhttps:;
+    } else if (field === "confirm_password") {
+      setShowConfirmPassword(!showConfirmPassword);
     }
   };
-  const handlePasswordChange = (e: { target: { value: any } }) => {
-    const newPassword = e.target.value;
-    setPassword(newPassword);
-
-    if (confirmPassword && newPassword !== confirmPassword) {
-      setPasswordsMatch(false);
-      setPasswordError("Passwords do not match");
-    } else {
-      setPasswordsMatch(true);
-      setPasswordError("");
-    }
-  };
-  const handleConfirmPasswordChange = (e: { target: { value: any } }) => {
-    const newConfirmPassword = e.target.value;
-    setConfirmPassword(newConfirmPassword);
-    if (password && newConfirmPassword !== password) {
-      setPasswordsMatch(false);
-      setPasswordError("Passwords do not match");
-    } else {
-      setPasswordsMatch(true);
-      setPasswordError("");
-    }
-  };
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      setPasswordMatchError(true);
+      return;
+    }
+    await handleRegister(formData);
   };
-  function setFirstName(value: string): void {
-    throw new Error("Function not implemented.");
-  }
-  function setLastName(value: string): void {
-    throw new Error("Function not implemented.");
-  }
-  function setUserName(value: string): void {
-    throw new Error("Function not implemented.");
-  }
-
   return (
-    <div className="relative w-screen h-screen overflow-hidden flex">
-      <div className="w-1/2 relative">
-        
-        <div className="absolute top-0 left-0 w-full h-full bg-green-900 opacity-50"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-8">
-          <h1 className="text-6xl font-bold mb-6 text-white">Welcome!</h1>
-          <p className="text-3xl mb-80 text-white">
-            We are committed to making waste{" "}
-            <span className="text-yellow-500">collection</span> and{" "}
-            <span className="text-yellow-500">recycling</span> easy and
-            convenient.
+    <div className="intro flex flex-col items-center justify-center min-h-screen bg-cover bg-center bg-no-repeat bg-fixed bg-fixed bg-[url(/image/transit.png)]">
+      <div className="w-[628px] h-[1200px] bg-white bg-opacity-10 backdrop-blur-[10px] mt-12 pl-24">
+        <div className="flex justify-center items-center">
+          <div className="flex flex-col lg:flex-row pr-2">
+            <div className="pr-6">
+            <div className="flex flex-col items-center mt-10">
+          <div className="flex items-center justify-center mt-8 pr-20">
+            <img src="/image/profile.png" alt="Profile Icon" className="w-[90px] h-[90px] rounded-full" />
+          </div>
+          <h2 className="text-3xl font-bold mb-2 text-white pr-20">
+            <span className="text-amber-600">Log</span>in
+          </h2>
+          <p className="text-2xl font-semibold text-white text-black pr-20 mb-">
+            Welcome to TruxPortal
           </p>
         </div>
-      </div>
-      <div className="w-1/2 bg-green-950">
-        <div className="w-full h-full text-white flex flex-col items-center justify-center">
-          <div className="text-white px-8">
-            <h1 className="text-5xl font-bold mb-4 text-yellow-500">Sign Up</h1>
-            <form onSubmit={handleSubmit} className="w-2/3">
-            <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-8">
+              <form className="mt-6" onSubmit={handleSubmit}>
+                <div className="mb-2">
+                <label htmlFor="username" className="block w-[98px] h-[23px] text-white text-xl font-normal font-['Inter']">
+            Username
+          </label>
                 <input
                   type="text"
-                  placeholder="User Name"
-                  className="w-full px-4 py-6 bg-transparent text-white placeholder-white-500 placeholder-opacity-60 focus:outline-none font-bold"
-                  required
-                  onChange={e=>setUserName(e.target.value)}
+                  name="username"
+                  placeholder="Username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  className="w-[416px] h-10 bg-zinc-300 rounded-[7px] mt-4 p-4 text-black p-6"
                 />
-              </div>
-              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-2 py-2 mb-8">
-                <input
-                  type="text"
-                  placeholder="First Name"
-                  className="w-full px-4 py-6 bg-transparent text-white placeholder-white-500 placeholder-opacity-60 focus:outline-none font-bold"
-                  required
-                  onChange={e=>setFirstName(e.target.value)}
-                />
-              </div>
-              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-8">
-                <input
-                  type="text"
-                  placeholder="Last Name"
-                  className="w-full px-4 py-6 bg-transparent text-white placeholder-white-500 placeholder-opacity-60 focus:outline-none font-bold mr-40"
-                  required
-                  onChange={e=>setLastName(e.target.value)}
-                />
-              </div>
-              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-8">
+                </div>
+                <div>
+                <label htmlFor="email" className="block w-[98px] h-[23px] text-white text-xl font-normal font-['Inter']">
+            Email
+          </label>
                 <input
                   type="email"
-                  placeholder="Email"
-                  className="w-full px-4 py-6 bg-transparent text-white placeholder-white-500 placeholder-opacity-60 focus:outline-none font-bold"
-                  required
+                  name="email"
+                  placeholder="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-[416px] h-10 bg-zinc-300 rounded-[7px] mt-4 p-4 text-black p-6 "
                 />
-              </div>
-              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-8">
+                </div>
+                <div>
+                <label htmlFor="first_name" className="block w-[98px] h-[23px] text-white text-xl font-normal font-['Inter']">
+            FirstName
+          </label>
                 <input
                   type="text"
-                  placeholder="Phonenumber"
-                  className="w-full px-4 py-6 bg-transparent text-white placeholder-white-500 placeholder-opacity-60 focus:outline-none font-bold"
-                  required
+                  name="first_name"
+                  placeholder="First Name"
+                  value={formData.first_name}
+                  onChange={handleInputChange}
+                  className="w-[416px] h-10 bg-zinc-300 rounded-[7px] mt-4 p-4 text-black p-6"
                 />
-              </div>
-              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-8">
+                </div>
+                <div>
+                <label htmlFor="last_name" className="block w-[98px] h-[23px] text-white text-xl font-normal font-['Inter']">
+            LastName
+          </label>
                 <input
                   type="text"
-                  placeholder="Location"
-                  className="w-full px-4 py-6 bg-transparent text-white placeholder-white-500 placeholder-opacity-60 focus:outline-none font-bold"
-                  required
+                  name="last_name"
+                  placeholder="Last Name"
+                  value={formData.last_name}
+                  onChange={handleInputChange}
+                  className="w-[416px] h-10 bg-zinc-300 rounded-[7px] mt-4 p-4 text-black p-6"
                 />
-              </div>
-              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-8">
-                <div className="relative">
-                  <label
-                    htmlFor="password"
-                    className="text-white block mb-8"
-                  ></label>
-                  <input
-                    type={passwordVisible ? "text" : "password"}
-                    placeholder="Enter your password"
-                    id="password"
-                    value={password}
-                    onChange={handlePasswordChange}
-                    className="w-full px-4 py-2 bg-transparent text-white placeholder-white-500 placeholder-opacity-60 focus:outline-none font-bold"
-                    required
-                  />
-                  <span
-                    className="absolute right-4 top-4 cursor-pointer"
-                    onClick={() => togglePasswordVisibility("password")}
-                  >
-                    {passwordVisible ? <FaEye /> : <FaEyeSlash />}
-                  </span>
                 </div>
-              </div>
-              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-4">
-                <div className="relative">
-                  <label
-                    htmlFor="confirmPassword"
-                    className="text-white block mb-8"
-                  ></label>
-                  <input
-                    type={confirmPasswordVisible ? "text" : "password"}
-                    placeholder="Confirm your password"
-                    id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={handleConfirmPasswordChange}
-                    className="w-full px-4 py-2 bg-transparent text-white placeholder-white-500 placeholder-opacity-60 focus:outline-none font-bold"
-                    required
-                  />
-                  <span
-                    className="absolute right-4 top-4 cursor-pointer"
-                    onClick={() => togglePasswordVisibility("confirmPassword")}
-                  >
-                    {confirmPasswordVisible ? <FaEye /> : <FaEyeSlash />}
-                  </span>
+                <div>
+                <label htmlFor="phone_number" className="block w-[98px] h-[23px] text-white text-xl font-normal font-['Inter']">
+            PhoneNumber
+          </label>
+                <input
+                  type="text"
+                  name="phone_number"
+                  placeholder="Phone Number"
+                  value={formData.phone_number}
+                  onChange={handleInputChange}
+                  className="w-[416px] h-10 bg-zinc-300 rounded-[7px] mt-4 p-4 text-black p-6"
+                />
                 </div>
-              </div>
-              {!passwordsMatch && (
-                <p className="text-red-500 mb-4">{passwordError}</p>
+                <div>
+                <label htmlFor="location" className="block w-[98px] h-[23px] text-white text-xl font-normal font-['Inter']">
+            location
+          </label>
+                <input
+                  type="text"
+                  name="location"
+                  placeholder="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  className="w-[416px] h-10 bg-zinc-300 rounded-[7px] mt-4 p-4 text-black p-6"
+                />
+                </div>
+                <div className="relative">
+  <label
+    htmlFor="password"
+    className="block w-[98px] h-[23px] text-white text-xl font-normal font-['Inter']"
+  >
+    Password
+  </label>
+  <input
+    type={showPassword ? "text" : "password"}
+    name="password"
+    placeholder="Password"
+    value={formData.password}
+    onChange={handleInputChange}
+    className="w-[416px] h-10 bg-zinc-300 rounded-[7px] mt-4 p-4 text-black p-6"
+  />
+  <FontAwesomeIcon
+    icon={showPassword ? faEye : faEyeSlash}
+    className="absolute top-1/2 right-6 transform -translate-y-1/6 text-black cursor-pointer"
+    onClick={() => togglePasswordVisibility("password")}
+  />
+</div>
+                <div className="relative">
+                <label htmlFor="confirmpassword" className="block w-[98px] h-[23px] text-white text-xl font-normal font-['Inter']">
+            confirmPassword
+          </label>
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    placeholder="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className={`w-[416px] h-10 bg-zinc-300 rounded-[7px] mt-4 p-4 text-black p-6 ${passwordMatchError
+                      ? "border-red-500"
+                      : "border-gray-300"
+                    } `}
+                  />
+                 <FontAwesomeIcon
+  icon={showConfirmPassword ? faEye : faEyeSlash}
+  className="absolute top-1/2 right-6 transform -translate-y-1/6 text-black cursor-pointer"
+  onClick={() => togglePasswordVisibility("confirm_password")}
+/>
+                </div>
+                {passwordMatchError && (
+                  <div className="text-red-500 ml-16 mt-2">
+                    Passwords do not match.
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  className="w-[159px] h-[63px] bg-amber-600 rounded-xl text-2xl text-white font-bold font-['Inter'] ml-24 mt-4"
+                >
+                  Sign Up
+                </button>
+              </form>
+              {error && (
+                <div className="text-red-500 ml-16 mt-2 ">{error}</div>
               )}
-              <Link href="/login">
-              <button
-              type="submit"
-                className="w-32 ml-24 h-14 bg-transparent border-green-500 border-2 text-yellow-500 text-white hover:bg-yellow-500 hover:text-white font-bold shadow-md"
-                disabled={!passwordsMatch}
-              >
-                Sign Up
-              </button>
-              </Link>
-              <p className="mt-4 text-black-500">
+              {user && (
+                <div className="text-red-500 ml-16 mt-2">{user.message}</div>
+              )}
+              <p className="text-white text-xl font-normal font-Inter pr-20 mt-10 pl-2">
                 Already have an account?{" "}
-                <Link href="/login">
-                  <p className="text-yellow-500">Login</p>
+                <Link href="/login" className="text-amber-600 text-xl font-normal font-Inter">
+                  Login
                 </Link>
               </p>
-            </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-export default SignUp;
+export default SignupPage;

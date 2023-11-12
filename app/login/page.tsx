@@ -1,43 +1,76 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import Image from "next/image";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import axios from "axios";
+import { BASE_URL } from "@/config";
+
+
 
 const Login = () => {
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [phonenumberVisible, setPhonenumberVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phonenumberError, setPhonenumberError] = useState("");
   const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
+    setPhonenumberVisible(!phonenumberVisible);
   };
-  const handlePasswordChange = (e: { target: { value: any } }) => {
-    const newPassword = e.target.value;
-    setPassword(newPassword);
+  const handlePhoneNumberChange = (e: { target: { value: any } }) => {
+    const newPhonenumber = e.target.value;
+    setPhoneNumber(newPhonenumber);
   };
-  const handleUserNameChange = (e: { target: { value: any } }) => {
-    const newUserName = e.target.value;
-    setUserName(newUserName);
+  const handleemailChange = (e: { target: { value: any } }) => {
+    const newemail= e.target.value;
+    setEmail(newemail);
   };
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    if (!userName || !password) {
-      setPasswordError("Please enter both username and password.");
+    if (!email || !phoneNumber) {
+      setPhonenumberError("Please enter both email and phonenumber.");
       return;
     }
+    const handleSubmit = async (e: { preventDefault: () => void }) => {
+      e.preventDefault();
+      const data = {
+      email: email,
+      phoneNumber: phoneNumber
+      };
+      console.log(data)
+  
+      await axios.post(`${BASE_URL}/api/login/`, data)
+        .then((response) => {
+          console.log(response)
+          if (response.status === 200) {
+            window.location.href = "/login";
+          } else {
+            alert("There was an error login");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
   };
+  function handlePhonenumberChange(event: ChangeEvent<HTMLInputElement>): void {
+    throw new Error("Function not implemented.");
+  }
+
+  function handleEmailChange(event: ChangeEvent<HTMLInputElement>): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div className="relative w-screen h-screen overflow-hidden flex">
       <div className="w-1/2 relative">
-       <div
-          className="w-full h-full"
-          style={{
-            backgroundImage: 'url("/images/truck.jpg")',
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        ></div>
+      <Image
+  src="/images/truck.jpg"
+  alt="Background Image"
+  layout="fill"
+  objectFit="cover"
+  objectPosition="center"
+  priority={true}
+/>
         <div className="absolute top-0 left-0 w-full h-full bg-green-900 opacity-50"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-8">
           <h1 className="text-6xl font-bold mb-6 text-white">Welcome!</h1>
@@ -54,41 +87,35 @@ const Login = () => {
           <div className="text-white px-8">
             <h1 className="text-6xl font-bold mb-6 text-yellow-500">Login</h1>
             <form onSubmit={handleSubmit} className="w-2/3">
-              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-8">
+              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-3">
                 <input
                   type="text"
                   placeholder="Email"
                   className="w-full px-4 py-2 bg-transparent text-white placeholder-white-500 placeholder-opacity-60 focus:outline-none font-bold"
                   required
-                  value={userName}
-                  onChange={handleUserNameChange}
+                  value={email}
+                  onChange={handleEmailChange}
                 />
               </div>
-              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-8">
+              <div className="border-green-500 border-2 rounded-lg bg-opacity-20 bg-green-900 px-4 py-2 mb-3">
                 <div className="relative">
                   <label
                     htmlFor="PhoneNumber"
                     className="text-white block mb-1"
                   ></label>
                   <input
-                    type={passwordVisible ? "text" : "password"}
+                    type={phonenumberVisible ? "text" : "password"}
                     placeholder="Phonenumber"
-                    id="phoneumber"
-                    value={password}
-                    onChange={handlePasswordChange}
+                    id="phonenumber"
+                    value={phoneNumber}
+                    onChange={handlePhonenumberChange}
                     className="w-full px-4 py-2 bg-transparent text-white placeholder-white-500 placeholder-opacity-60 focus:outline-none font-bold"
                     required
                   />
-                  <span
-                    className="absolute right-4 top-4 cursor-pointer"
-                    onClick={togglePasswordVisibility}
-                  >
-                    {passwordVisible ? <FaEye /> : <FaEyeSlash />}
-                  </span>
                 </div>
               </div>
-              {passwordError && (
-                <p className="text-red-500 mb-4">{passwordError}</p>
+              {phonenumberError && (
+                <p className="text-red-500 mb-4">{phonenumberError}</p>
               )}
               <Link href="/SignUp">
               <button
